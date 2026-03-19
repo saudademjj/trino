@@ -134,18 +134,7 @@ public class Minio
 
     public void copyResources(String resourcePath, String bucketName, String target)
     {
-        try (MinioClient minioClient = createMinioClient()) {
-            for (ClassPath.ResourceInfo resourceInfo : ClassPath.from(getClass().getClassLoader())
-                    .getResources()) {
-                if (resourceInfo.getResourceName().startsWith(resourcePath)) {
-                    String fileName = resourceInfo.getResourceName().replaceFirst("^" + Pattern.quote(resourcePath), quoteReplacement(target));
-                    minioClient.putObject(bucketName, resourceInfo.asByteSource().read(), fileName);
-                }
-            }
-        }
-        catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        processAndCopyResources(resourcePath, (_, bytes) -> bytes, bucketName, target);
     }
 
     public void processAndCopyResources(String resourcePath, ResourcePreProcessor processor, String bucketName, String target)
